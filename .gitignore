@@ -1,0 +1,53 @@
+# Python
+# ==================================
+# Archivos de caché compilados
+__pycache__/
+*.pyc
+
+# Entornos virtuales (el log mostró que usas 'py6s-env')
+py6s-env/
+venv/
+.venv/
+env/
+
+# Archivos de entorno (no subir claves o configuraciones secretas)
+.env
+
+# IDE / Editores
+# ==================================
+.vscode/
+.idea/
+
+# Sistema Operativo
+# ==================================
+.DS_Store
+Thumbs.db
+
+# --- Específico del Proyecto ---
+
+# 1. Datos de Entrada
+# (Ignora el CONTENIDO de inputs/, pero no la carpeta)
+inputs/*
+
+# (Excepción: No ignores el archivo .gitkeep)
+!inputs/.gitkeep
+*.tif
+*.tiff
+
+# 2. Salidas del Modelo
+outputs/*
+!outputs/.gitkeep
+
+# 3. Archivos de Log y JSON generados
+*.log
+metrics.json
+config.json
+training_history.json
+
+# 4. Checkpoints del modelo
+*.pth
+
+# 5. Archivos .pyc que pudiste haber subido accidentalmente
+# (Tuve acceso a tus archivos .pyc)
+harmonization_project/src/__pycache__/
+harmonization_project/__pycache__/
