@@ -1,0 +1,36 @@
+# =================================================================
+# Requisitos del Proyecto de Armonización BCNet
+# =================================================================
+
+# --- Core Deep Learning ---
+
+torch==2.5.1
+# Librería principal de Deep Learning.
+# Usado en: src/architecture.py, src/trainer.py, src/losses.py, etc.
+
+# --- Data Science & Geospatial ---
+
+numpy==1.26.4
+# Requerido por PyTorch, Rasterio, Matplotlib y scikit-learn.
+# Usado para operaciones numéricas y manipulación de datos.
+# Usado en: src/data_loader.py, predict.py, evaluate.py
+
+rasterio==1.3.10
+# Esencial para leer y escribir archivos GeoTIFF (imágenes satelitales).
+# Usado en: src/data_loader.py, predict.py
+
+# --- Evaluación y Métricas ---
+
+scikit-learn==1.5.1
+# Usado para calcular las métricas de evaluación del paper.
+# Usado en: evaluate.py (importa mean_squared_error, r2_score, etc.)
+
+matplotlib==3.9.1
+# Usado para generar los gráficos (scatter plots, mapas de error).
+# Usado en: evaluate.py (importa matplotlib.pyplot)
+
+# --- Utilidades ---
+
+tqdm==4.66.4
+# Usado para mostrar barras de progreso durante el entrenamiento y la predicción.
+# Usado en: src/trainer.py, predict.py, evaluate.py
