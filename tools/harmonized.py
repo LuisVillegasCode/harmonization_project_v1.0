@@ -345,13 +345,13 @@ class PixelDatabase:
         self.logger.info("Loading input images...")
         
         with rasterio.open(self.config.p1_path) as p1_ds:
-            p1_data = p1_ds.read().astype(np.float32)
+            p1_data = (p1_ds.read().astype(np.float32) / 10000.0)
             p1_shape = p1_ds.shape
             p1_res = p1_ds.res
             self.logger.info(f"  P1: shape={p1_shape}, resolution={p1_res[0]:.1f}m")
         
         with rasterio.open(self.config.s2_path) as s2_ds:
-            s2_data = s2_ds.read().astype(np.float32)
+            s2_data = (s2_ds.read().astype(np.float32) / 10000.0)
             s2_meta = s2_ds.meta.copy()
             s2_shape = s2_ds.shape
             s2_res = s2_ds.res
