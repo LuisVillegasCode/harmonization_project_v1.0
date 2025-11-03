@@ -527,7 +527,7 @@ def run_evaluation(args: argparse.Namespace) -> Dict:
         'device': args.device,
         'p1_nodata': getattr(args, 'p1_nodata', [0]),
         's2_nodata': getattr(args, 's2_nodata', [0]),
-        'cloud_values': getattr(args, 'cloud_values', [3, 8, 9, 10]),
+        'cloud_values': getattr(args, 'cloud_values', [0,3, 8, 9, 10]),
         'scale_factor': getattr(args, 'scale_factor', 10000.0),
         'batch_size': getattr(args, 'batch_size', 100),
         'split_ratio': getattr(args, 'split_ratio', 0.9),

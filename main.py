@@ -105,7 +105,7 @@ def create_parser() -> argparse.ArgumentParser:
         '--s2-nodata', type=float, nargs='+', default=[0], help='Valor nodata S2'
     )
     common_data_parser.add_argument(
-        '--cloud-values', type=int, nargs='+', default=[3, 8, 9, 10], help='Valores de nube'
+        '--cloud-values', type=int, nargs='+', default=[0,3, 8, 9, 10], help='Valores de nube'
     )
     common_data_parser.add_argument(
         '--scale-factor', type=float, default=10000.0, help='Factor de escala'

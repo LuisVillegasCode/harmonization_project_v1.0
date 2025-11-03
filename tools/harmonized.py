@@ -8,14 +8,14 @@ Implements EXACTLY the methodology from Michel & Inglada (2021):
 ISPRS Archives, Volume XLIII-B3-2021, pp. 265-272
 
 Key differences from harmonized.py:
-1. ✓ batch_size=100 (paper requirement)
-2. ✓ train/test=90/10 split (corrected from inverted ratio)
-3. ✓ Loss function: L(t,r) = |t-r| / (ε + r) where r=prediction
-4. ✓ Proper normalization to [0,1] throughout pipeline
-5. ✓ Removes non-paper filters (relative difference)
-6. ✓ Complete MTF blur + resampling workflow
-7. ✓ Output clamping for Tanh activation
-8. ✓ Scientific notation and paper citations
+1. batch_size=100 (paper requirement)
+2. train/test=90/10 split (corrected from inverted ratio)
+3. Loss function: L(t,r) = |t-r| / (ε + r) where r=prediction
+4. Proper normalization to [0,1] throughout pipeline
+5. Removes non-paper filters (relative difference)
+6. Complete MTF blur + resampling workflow
+7. Output clamping for Tanh activation
+8. Scientific notation and paper citations
 
 Author: Refactored Implementation (2025)
 License: MIT
@@ -67,7 +67,7 @@ class CalibNetConfig:
     hidden_units: int = 320  # Paper value
     
     # Training (Section 2.3)
-    batch_size: int = 100  # ⚠️ PAPER: "batches of 100x32x32 samples"
+    batch_size: int = 100  #  PAPER: "batches of 100x32x32 samples"
     learning_rate: float = 0.0002  # Paper: "Adam with lr=0.0002"
     target_iterations: int = 5000  # Paper: "approximately 5000 iterations"
     train_test_ratio: float = 0.9  # Paper: "90% training and 10% testing"
@@ -75,7 +75,7 @@ class CalibNetConfig:
     # Data parameters
     scale_factor: float = 10000.0  # Standard reflectance scaling
     cloud_values: List[int] = field(default_factory=lambda: [3, 8, 9, 10])
-    nodata_values: List[float] = field(default_factory=lambda: [0])
+    nodata_values: List[float] = field(default_factory=lambda: [0.0])
     
     # MTF Filter (Section 2.1)
     # Gaussian sigma values for each band (approximation)
@@ -266,7 +266,7 @@ class RelativeErrorLoss(nn.Module):
             Scalar loss value
         """
         # Clamp prediction to valid range [0, 1]
-        # ⚠️ Tanh + skip connection can produce values outside [0,1]
+        # Tanh + skip connection can produce values outside [0,1]
         prediction = torch.clamp(prediction, min=0.0, max=1.0)
         
         # Compute relative error: [cite: 109] |t - r| / (ε + r)
@@ -442,10 +442,6 @@ class PixelDatabase:
         X = p1_hwc[valid_mask]  # PeruSAT-1 input
         y = s2_hwc[valid_mask]  # Sentinel-2 target
         
-        # Normalize to [0, 1] using scale factor
-        X = X / self.config.scale_factor
-        y = y / self.config.scale_factor
-        
         self.logger.info(f"  Extracted: {X.shape[0]:,} pixel pairs")
         self.logger.info(f"  X range: [{X.min():.6f}, {X.max():.6f}]")
         self.logger.info(f"  y range: [{y.min():.6f}, {y.max():.6f}]")
@@ -469,7 +465,7 @@ class PixelDatabase:
         # Apply MTF filtering [cite: 81]
         mtf_filter = MTFFilter(self.config.mtf_sigma, ['B2', 'B3', 'B4', 'B8'])
         p1_data = mtf_filter.apply(p1_data)
-        self.logger.info("✓ MTF filtering applied to P1")
+        self.logger.info("OK MTF filtering applied to P1")
         
         # Create valid mask
         valid_mask = self.create_valid_mask(p1_data, s2_data, cloud_mask)
@@ -517,7 +513,7 @@ class PixelDatabase:
             pin_memory=True
         )
         
-        self.logger.info("✓ Data preparation complete")
+        self.logger.info("OK Data preparation complete")
         return train_loader, test_loader, X_test, y_test, s2_meta
 
 
@@ -645,7 +641,7 @@ class Trainer:
         if is_best:
             best_path = self.config.output_dir / 'calibnet_best.pth'
             torch.save(self.model.state_dict(), best_path)
-            self.logger.info(f"✓ New best model (epoch {epoch})")
+            self.logger.info(f"OK New best model (epoch {epoch})")
     
     def train(self, train_loader: DataLoader, val_loader: DataLoader) -> Dict:
         """Execute training loop."""
@@ -673,7 +669,7 @@ class Trainer:
             
             self.save_checkpoint(epoch, is_best)
             
-            marker = " ← BEST" if is_best else ""
+            marker = " <-- BEST" if is_best else ""
             self.logger.info(
                 f"Epoch {epoch:3d}/{n_epochs} | "
                 f"Train: {train_loss:.6f} | "
@@ -681,7 +677,7 @@ class Trainer:
             )
         
         elapsed = time.time() - start_time
-        self.logger.info(f"\n✓ Training complete ({elapsed/60:.1f} min)")
+        self.logger.info(f"\nOK Training complete ({elapsed/60:.1f} min)")
         self.logger.info(f"  Best epoch: {self.best_epoch} (loss={self.best_val_loss:.6f})")
         
         return self.history
@@ -785,7 +781,7 @@ class Evaluator:
         with open(metrics_path, 'w') as f:
             json.dump(metrics, f, indent=2)
         
-        self.logger.info(f"✓ Metrics saved to {metrics_path}")
+        self.logger.info(f"OK Metrics saved to {metrics_path}")
         
         # Generate visualizations
         self._plot_scatter(y_test, y_pred, metrics)
@@ -830,7 +826,7 @@ class Evaluator:
         plot_path = self.config.output_dir / 'scatter_plots.png'
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
-        self.logger.info(f"✓ Saved to {plot_path}")
+        self.logger.info(f"OK Saved to {plot_path}")
     
     def _plot_training_curves(self, history: Dict):
         """Plot training curves (Figures 5, 6 from paper)."""
@@ -863,7 +859,7 @@ class Evaluator:
         curve_path = self.config.output_dir / 'training_curves.png'
         plt.savefig(curve_path, dpi=300, bbox_inches='tight')
         plt.close()
-        self.logger.info(f"✓ Saved to {curve_path}")
+        self.logger.info(f"OK Saved to {curve_path}")
 
 
 # ============================================================================
@@ -895,6 +891,8 @@ class Harmonizer:
         self.logger.info(f"Loading P1 image: {self.config.p1_path}")
         with rasterio.open(self.config.p1_path) as src:
             p1_data = src.read().astype(np.float32)
+            # Crear una máscara de NoData. Asumimos NoData=0
+            nodata_mask = (p1_data[0] == 0)
             p1_meta = src.meta.copy()
             height, width = src.shape
         
@@ -930,6 +928,7 @@ class Harmonizer:
         
         # Reshape back: [H*W, C] → [C, H, W]
         harmonized_data = harmonized_flat.reshape(height, width, 4).transpose(2, 0, 1)
+        harmonized_data[:, nodata_mask] = 0  # Restablece NoData a 0
         
         # Write output
         self.logger.info(f"Writing harmonized image: {output_path}")
@@ -938,7 +937,7 @@ class Harmonizer:
         with rasterio.open(output_path, 'w', **p1_meta) as dst:
             dst.write(harmonized_data.astype(np.uint16))
         
-        self.logger.info(f"✓ Harmonization complete: {output_path}")
+        self.logger.info(f"OK Harmonization complete: {output_path}")
 
 
 # ============================================================================

@@ -291,7 +291,7 @@ def run_training(args: argparse.Namespace) -> Dict[str, Any]:
         'resume_from': getattr(args, 'resume_from', None),
         'p1_nodata': getattr(args, 'p1_nodata', [0]),
         's2_nodata': getattr(args, 's2_nodata', [0]),
-        'cloud_values': getattr(args, 'cloud_values', [3, 8, 9, 10]),
+        'cloud_values': getattr(args, 'cloud_values', [0,3, 8, 9, 10]),
         'scale_factor': getattr(args, 'scale_factor', 10000.0),
         'perusat_resolution': getattr(args, 'perusat_resolution', 2.0),
         'perusat_variant': getattr(args, 'perusat_variant', 'resampled'),
